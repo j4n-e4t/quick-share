@@ -1,9 +1,52 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { eq, sql } from "drizzle-orm";
-import { shares } from "@/server/db/schema";
-import { db } from "@/server/db";
+import { turso } from "@/server/db";
+import { encrypt, decrypt, hashCode } from "@/lib/crypto";
+
+function parseDuration(duration: string) {
+  switch (duration) {
+    case "1h":
+      return new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString();
+    case "24h":
+      return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    case "7d":
+      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    default:
+      return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  }
+}
+
+export type Share = {
+  id: number;
+  code: string;
+  title: string | null;
+  content: string;
+  created_at: Date;
+  expires_at: Date;
+};
+
+async function getCachedShare(code: string): Promise<Share> {
+  const result = (
+    await turso.execute({
+      sql: "SELECT * FROM share WHERE code = ?",
+      args: [await hashCode(code)],
+    })
+  ).rows[0];
+
+  if (!result) {
+    throw new Error("Share not found");
+  }
+
+  return {
+    id: result.id as number,
+    code: code,
+    title: result.title as string | null,
+    content: result.content as string,
+    created_at: new Date(result.created_at as string),
+    expires_at: new Date(result.expires_at as string),
+  };
+}
 
 export const shareRouter = createTRPCRouter({
   create: publicProcedure
@@ -11,53 +54,55 @@ export const shareRouter = createTRPCRouter({
       z.object({
         title: z.string(),
         content: z.string(),
-        maxViews: z.number().optional(),
+        availableUntil: z.string(),
       }),
     )
     .mutation(async ({ input }) => {
-      const timestamp = Date.now();
       const code = Array.from({ length: 3 }, () =>
         String.fromCharCode(
-          65 + ((Math.floor(Math.random() * 26) + timestamp) % 26),
+          65 + ((Math.floor(Math.random() * 26) + Date.now()) % 26),
         ),
       ).join("");
 
-      const share = await db
-        .insert(shares)
-        .values({
-          title: input.title,
-          content: input.content,
-          code,
-          maxViews: input.maxViews,
-        })
-        .returning();
+      await turso.execute({
+        sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+        args: [
+          await encrypt(input.title),
+          await encrypt(input.content),
+          await hashCode(code),
+          new Date().toISOString(),
+          parseDuration(input.availableUntil),
+        ],
+      });
 
-      return share;
+      return code;
     }),
 
   get: publicProcedure
-    .input(z.object({ code: z.string(), is_viewed: z.boolean() }))
+    .input(z.object({ code: z.string() }))
     .query(async ({ input }) => {
-      const share = await db.query.shares.findFirst({
-        where: eq(shares.code, input.code),
-      });
+      const share = await getCachedShare(input.code);
 
       if (!share) {
         throw new Error("Share not found");
       }
 
-      if (share.maxViews && share.views && share.views >= share.maxViews) {
-        await db.delete(shares).where(eq(shares.code, input.code));
-        throw new Error("Share has reached its maximum views");
+      if (new Date() > new Date(share.expires_at)) {
+        await turso.execute({
+          sql: "DELETE FROM share WHERE code = ?",
+          args: [await hashCode(input.code)],
+        });
+
+        throw new Error("Share has expired");
       }
 
-      if (input.is_viewed) {
-        await db
-          .update(shares)
-          .set({ views: sql`${shares.views} + 1` })
-          .where(eq(shares.code, input.code));
-      }
-
-      return share;
+      return {
+        id: share.id,
+        title: await decrypt(share.title!),
+        content: await decrypt(share.content),
+        expires_at: share.expires_at,
+        created_at: share.created_at,
+        code: input.code,
+      };
     }),
 });

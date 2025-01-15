@@ -2,8 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CreateShareForm } from "@/components/create-share-form";
 import { OpenShareForm } from "@/components/open-share-form";
-
-export default function Page() {
+export default async function Page() {
   return (
     <main className="flex min-h-screen w-full flex-col items-center gap-4 p-4 md:justify-center md:gap-10">
       <div className="flex w-full flex-col items-center justify-center">
