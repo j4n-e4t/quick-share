@@ -154,7 +154,11 @@ export function CreateShareForm() {
               </FormItem>
             )}
           />
-          <Button type="submit" className="flex w-full items-center gap-2">
+          <Button
+            type="submit"
+            className="flex w-full items-center gap-2"
+            disabled={isPending}
+          >
             <SendIcon className="h-4 w-4" />
             Share
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}

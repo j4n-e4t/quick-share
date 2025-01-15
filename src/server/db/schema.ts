@@ -20,15 +20,15 @@ export const createTable = pgTableCreator((name) => `quick-share_${name}`);
 
 export const shares = createTable("share", {
   id: integer("id").primaryKey().unique().generatedByDefaultAsIdentity(),
-  code: varchar("code").unique(),
+  code: varchar("code").unique().notNull(),
   title: varchar("title", { length: 255 }),
-  content: text("content"),
+  content: text("content").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .default(sql`CURRENT_TIMESTAMP`)
     .notNull(),
-  availableUntil: timestamp("available_until", { withTimezone: true })
-    .default(sql`CURRENT_TIMESTAMP + INTERVAL '1 hour'`)
-    .notNull(),
+  availableUntil: timestamp("available_until", {
+    withTimezone: true,
+  }).notNull(),
 });
 
 export type Share = typeof shares.$inferSelect;

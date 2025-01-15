@@ -1,4 +1,7 @@
-import { CopyShareLinkButton } from "@/components/copy-share-button";
+import {
+  CopyShareContentButton,
+  CopyShareLinkButton,
+} from "@/components/copy-share-button";
 import {
   Card,
   CardContent,
@@ -16,7 +19,6 @@ export default async function Page(props: {
   const params = await props.params;
   const share = await api.share.get({
     code: params.code,
-    is_viewed: true,
   });
   if (!share) {
     redirect("/");
@@ -26,16 +28,16 @@ export default async function Page(props: {
     <main className="flex min-h-screen items-center justify-center">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>{share?.title}</CardTitle>
+          <CardTitle>{share.title}</CardTitle>
           <CardDescription>
-            {new Date(share?.createdAt).toLocaleDateString("en-US", {
+            {new Date(share.createdAt).toLocaleDateString("en-US", {
               dateStyle: "long",
             })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="whitespace-pre-wrap break-words rounded-md bg-muted p-4">
-            {share?.content?.startsWith("http") ? (
+            {share.content.startsWith("http") ? (
               <a
                 href={share.content}
                 target="blank"
@@ -44,12 +46,12 @@ export default async function Page(props: {
                 {share.content}
               </a>
             ) : (
-              share?.content
+              share.content
             )}
           </p>
         </CardContent>
         <CardFooter className="flex justify-end">
-          <CopyShareLinkButton share={share} />
+          <CopyShareContentButton share={share} />
         </CardFooter>
       </Card>
     </main>

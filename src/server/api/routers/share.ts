@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import { shares } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { revalidateTag, unstable_cache } from "next/cache";
+import { encrypt, decrypt, hashCode } from "@/lib/crypto";
 
 function parseDuration(duration: string) {
   switch (duration) {
@@ -21,7 +22,7 @@ function parseDuration(duration: string) {
 }
 
 function getCachedShare(code: string) {
-  const codeHash = crypto.createHash("sha256").update(code).digest("hex");
+  const codeHash = hashCode(code);
   return unstable_cache(
     async () => {
       console.log("cache miss");
@@ -63,8 +64,8 @@ export const shareRouter = createTRPCRouter({
       const share = await db
         .insert(shares)
         .values({
-          title: input.title,
-          content: input.content,
+          title: encrypt(input.title),
+          content: encrypt(input.content),
           code: codeHash,
           availableUntil: parseDuration(input.availableUntil),
         })
@@ -77,7 +78,7 @@ export const shareRouter = createTRPCRouter({
     }),
 
   get: publicProcedure
-    .input(z.object({ code: z.string(), is_viewed: z.boolean() }))
+    .input(z.object({ code: z.string() }))
     .query(async ({ input }) => {
       const share = await getCachedShare(input.code);
 
@@ -98,6 +99,13 @@ export const shareRouter = createTRPCRouter({
         throw new Error("Share has expired");
       }
 
-      return share;
+      return {
+        id: share.id,
+        title: decrypt(share.title!),
+        content: decrypt(share.content!),
+        availableUntil: share.availableUntil,
+        createdAt: share.createdAt,
+        code: input.code,
+      };
     }),
 });

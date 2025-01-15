@@ -5,14 +5,14 @@ import { CopyIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import type { Share } from "@/server/db/schema";
 
-export function CopyShareLinkButton({ share }: { share: Share }) {
+export function CopyShareContentButton({ share }: { share: Share }) {
   return (
     <Button
       onClick={async () => {
-        await navigator.clipboard.writeText(share.content!);
+        await navigator.clipboard.writeText(share.content);
         toast({
           title: "Copied to clipboard",
-          description: "Share link copied to clipboard",
+          description: "Share content copied to clipboard",
         });
       }}
     >
