@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/trpc/server";
-import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export default async function Page(props: {

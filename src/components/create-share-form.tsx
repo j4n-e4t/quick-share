@@ -29,7 +29,6 @@ import { Textarea } from "./ui/textarea";
 import { api } from "@/trpc/react";
 
 import { useState } from "react";
-import type { Share } from "@/server/db/schema";
 import {
   Select,
   SelectTrigger,

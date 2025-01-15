@@ -30,7 +30,7 @@ async function getCachedShare(code: string): Promise<Share> {
   const result = (
     await turso.execute({
       sql: "SELECT * FROM share WHERE code = ?",
-      args: [hashCode(code)],
+      args: [await hashCode(code)],
     })
   ).rows[0];
 
@@ -67,9 +67,9 @@ export const shareRouter = createTRPCRouter({
       await turso.execute({
         sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
         args: [
-          encrypt(input.title),
-          encrypt(input.content),
-          hashCode(code),
+          await encrypt(input.title),
+          await encrypt(input.content),
+          await hashCode(code),
           new Date().toISOString(),
           parseDuration(input.availableUntil),
         ],
@@ -90,7 +90,7 @@ export const shareRouter = createTRPCRouter({
       if (new Date() > new Date(share.expires_at)) {
         await turso.execute({
           sql: "DELETE FROM share WHERE code = ?",
-          args: [hashCode(input.code)],
+          args: [await hashCode(input.code)],
         });
 
         throw new Error("Share has expired");
@@ -98,8 +98,8 @@ export const shareRouter = createTRPCRouter({
 
       return {
         id: share.id,
-        title: decrypt(share.title!),
-        content: decrypt(share.content!),
+        title: await decrypt(share.title!),
+        content: await decrypt(share.content),
         expires_at: share.expires_at,
         created_at: share.created_at,
         code: input.code,
