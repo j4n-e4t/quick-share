@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { CopyIcon } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import type { Share } from "@/server/db/schema";
+import { Share } from "@/server/api/routers/share";
 
 export function CopyShareContentButton({ share }: { share: Share }) {
   return (

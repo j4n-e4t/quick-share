@@ -1,46 +1,51 @@
 import { z } from "zod";
-import crypto from "crypto";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { eq } from "drizzle-orm";
-import { shares } from "@/server/db/schema";
-import { db } from "@/server/db";
-import { revalidateTag, unstable_cache } from "next/cache";
+import { turso } from "@/server/db";
 import { encrypt, decrypt, hashCode } from "@/lib/crypto";
 
 function parseDuration(duration: string) {
   switch (duration) {
     case "1h":
-      return new Date(Date.now() + 1 * 60 * 60 * 1000);
+      return new Date(Date.now() + 1 * 60 * 60 * 1000).toISOString();
     case "24h":
-      return new Date(Date.now() + 24 * 60 * 60 * 1000);
+      return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     case "7d":
-      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
     default:
-      return new Date(Date.now() + 24 * 60 * 60 * 1000);
+      return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
   }
 }
 
-function getCachedShare(code: string) {
-  const codeHash = hashCode(code);
-  return unstable_cache(
-    async () => {
-      console.log("cache miss");
-      const result = await db.query.shares.findFirst({
-        where: eq(shares.code, codeHash),
-      });
+export type Share = {
+  id: number;
+  code: string;
+  title: string | null;
+  content: string;
+  created_at: Date;
+  expires_at: Date;
+};
 
-      if (!result) {
-        throw new Error("Share not found");
-      }
+async function getCachedShare(code: string): Promise<Share> {
+  const result = (
+    await turso.execute({
+      sql: "SELECT * FROM share WHERE code = ?",
+      args: [hashCode(code)],
+    })
+  ).rows[0];
 
-      return result;
-    },
-    [`share-${code}`],
-    {
-      tags: [`share-${code}`],
-    },
-  )();
+  if (!result) {
+    throw new Error("Share not found");
+  }
+
+  return {
+    id: result.id as number,
+    code: code,
+    title: result.title as string | null,
+    content: result.content as string,
+    created_at: new Date(result.created_at as string),
+    expires_at: new Date(result.expires_at as string),
+  };
 }
 
 export const shareRouter = createTRPCRouter({
@@ -53,28 +58,24 @@ export const shareRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input }) => {
-      const timestamp = Date.now();
       const code = Array.from({ length: 3 }, () =>
         String.fromCharCode(
-          65 + ((Math.floor(Math.random() * 26) + timestamp) % 26),
+          65 + ((Math.floor(Math.random() * 26) + Date.now()) % 26),
         ),
       ).join("");
-      const codeHash = crypto.createHash("sha256").update(code).digest("hex");
 
-      const share = await db
-        .insert(shares)
-        .values({
-          title: encrypt(input.title),
-          content: encrypt(input.content),
-          code: codeHash,
-          availableUntil: parseDuration(input.availableUntil),
-        })
-        .returning();
+      await turso.execute({
+        sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+        args: [
+          encrypt(input.title),
+          encrypt(input.content),
+          hashCode(code),
+          new Date().toISOString(),
+          parseDuration(input.availableUntil),
+        ],
+      });
 
-      return {
-        share,
-        code,
-      };
+      return code;
     }),
 
   get: publicProcedure
@@ -86,16 +87,12 @@ export const shareRouter = createTRPCRouter({
         throw new Error("Share not found");
       }
 
-      if (share.availableUntil < new Date()) {
-        await db
-          .delete(shares)
-          .where(
-            eq(
-              shares.code,
-              crypto.createHash("sha256").update(input.code).digest("hex"),
-            ),
-          );
-        revalidateTag(`share-${input.code}`);
+      if (new Date() > new Date(share.expires_at)) {
+        await turso.execute({
+          sql: "DELETE FROM share WHERE code = ?",
+          args: [hashCode(input.code)],
+        });
+
         throw new Error("Share has expired");
       }
 
@@ -103,8 +100,8 @@ export const shareRouter = createTRPCRouter({
         id: share.id,
         title: decrypt(share.title!),
         content: decrypt(share.content!),
-        availableUntil: share.availableUntil,
-        createdAt: share.createdAt,
+        expires_at: share.expires_at,
+        created_at: share.created_at,
         code: input.code,
       };
     }),

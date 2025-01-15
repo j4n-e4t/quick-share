@@ -1,7 +1,4 @@
-import {
-  CopyShareContentButton,
-  CopyShareLinkButton,
-} from "@/components/copy-share-button";
+import { CopyShareContentButton } from "@/components/copy-share-button";
 import {
   Card,
   CardContent,
@@ -11,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { api } from "@/trpc/server";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 export default async function Page(props: {
@@ -30,7 +28,7 @@ export default async function Page(props: {
         <CardHeader>
           <CardTitle>{share.title}</CardTitle>
           <CardDescription>
-            {new Date(share.createdAt).toLocaleDateString("en-US", {
+            {new Date(share.created_at).toLocaleDateString("en-US", {
               dateStyle: "long",
             })}
           </CardDescription>

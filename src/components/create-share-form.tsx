@@ -50,7 +50,7 @@ const FormSchema = z.object({
 
 export function CreateShareForm() {
   const { mutate, isPending } = api.share.create.useMutation();
-  const [share, setShare] = useState<Share | null>(null);
+  const [shareCode, setShareCode] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -70,11 +70,8 @@ export function CreateShareForm() {
         availableUntil: data.availableUntil,
       },
       {
-        onSuccess: (share) => {
-          setShare({
-            ...share.share[0]!,
-            code: share.code,
-          });
+        onSuccess: (code) => {
+          setShareCode(code);
           setIsOpen(true);
         },
         onError: (error) => {
@@ -174,7 +171,7 @@ export function CreateShareForm() {
               <span>Your share code is:</span>
 
               <span className="flex flex-row gap-2">
-                {share?.code?.split("").map((char, index) => (
+                {shareCode?.split("").map((char, index) => (
                   <span
                     key={index}
                     className="flex h-10 w-10 items-center justify-center rounded bg-primary px-2 py-1 font-mono text-lg text-primary-foreground"
@@ -193,7 +190,7 @@ export function CreateShareForm() {
             <AlertDialogAction
               onClick={async () => {
                 await navigator.clipboard.writeText(
-                  `${window.location.origin}/s/${share?.code}`,
+                  `${window.location.origin}/s/${shareCode}`,
                 );
                 toast({
                   title: "Copied to clipboard",
