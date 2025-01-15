@@ -30,14 +30,21 @@ import { api } from "@/trpc/react";
 
 import { useState } from "react";
 import type { Share } from "@/server/db/schema";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 const FormSchema = z.object({
   title: z.string().optional(),
   content: z.string().min(2, {
     message: "Content is too short",
   }),
-  maxViews: z.coerce.number().min(1, {
-    message: "Max views must be at least 1",
+  availableUntil: z.string().min(1, {
+    message: "Please select a duration",
   }),
 });
 
@@ -51,7 +58,7 @@ export function CreateShareForm() {
     defaultValues: {
       title: "",
       content: "",
-      maxViews: 10,
+      availableUntil: "1h",
     },
   });
 
@@ -60,11 +67,14 @@ export function CreateShareForm() {
       {
         title: data.title ?? "",
         content: data.content,
-        maxViews: data.maxViews,
+        availableUntil: data.availableUntil,
       },
       {
         onSuccess: (share) => {
-          setShare(share[0]!);
+          setShare({
+            ...share.share[0]!,
+            code: share.code,
+          });
           setIsOpen(true);
         },
         onError: (error) => {
@@ -119,18 +129,26 @@ export function CreateShareForm() {
           />
           <FormField
             control={form.control}
-            name="maxViews"
+            name="availableUntil"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Max views</FormLabel>
+                <FormLabel>Available for</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    min={1}
-                    placeholder="Max views"
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                  />
+                  <Select
+                    defaultValue={field.value}
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select duration" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="1h">1 hour</SelectItem>
+                      <SelectItem value="24h">24 hours</SelectItem>
+                      <SelectItem value="7d">7 days</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -171,7 +189,7 @@ export function CreateShareForm() {
             <AlertDialogAction
               onClick={async () => {
                 await navigator.clipboard.writeText(
-                  `${window.location.origin}/share/${share?.code}`,
+                  `${window.location.origin}/s/${share?.code}`,
                 );
                 toast({
                   title: "Copied to clipboard",

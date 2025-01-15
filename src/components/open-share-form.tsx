@@ -35,7 +35,7 @@ export function OpenShareForm() {
 
   const router = useRouter();
   async function onSubmit(input: z.infer<typeof FormSchema>) {
-    router.push(`/share/${input.code.toUpperCase()}`);
+    router.push(`/s/${input.code.toUpperCase()}`);
   }
 
   return (
