@@ -1,5 +1,4 @@
 import { CopyShareLinkButton } from "@/components/copy-share-button";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast } from "@/hooks/use-toast";
-import { Share } from "@/server/db/schema";
 import { api } from "@/trpc/server";
-import { CopyIcon } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function Page(props: {

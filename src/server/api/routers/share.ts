@@ -2,7 +2,7 @@ import { z } from "zod";
 import crypto from "crypto";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { shares } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { revalidateTag, unstable_cache } from "next/cache";
