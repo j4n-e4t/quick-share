@@ -4,10 +4,6 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { turso } from "@/server/db";
 import { encrypt, decrypt, hashCode } from "@/lib/crypto";
 
-async function waitFor(seconds: number) {
-  return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-}
-
 function parseDuration(duration: string) {
   switch (duration) {
     case "1h":
@@ -68,8 +64,6 @@ export const shareRouter = createTRPCRouter({
         ),
       ).join("");
 
-      await waitFor(2);
-
       await turso.execute({
         sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
         args: [
@@ -87,7 +81,6 @@ export const shareRouter = createTRPCRouter({
   get: publicProcedure
     .input(z.object({ code: z.string() }))
     .query(async ({ input }) => {
-      await waitFor(2);
       const share = await getCachedShare(input.code);
 
       if (!share) {
