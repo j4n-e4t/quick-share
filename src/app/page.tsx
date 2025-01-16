@@ -4,26 +4,7 @@ import { CreateShareForm } from "@/components/create-share-form";
 import { OpenShareForm } from "@/components/open-share-form";
 export default async function Page() {
   return (
-    <main className="flex min-h-screen w-full flex-col items-center gap-4 p-4 md:justify-center md:gap-10">
-      <div className="flex w-full flex-col items-center justify-center">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Share something</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CreateShareForm />
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="flex w-full flex-col items-center justify-center px-4">
-        <div className="flex w-full max-w-md items-center justify-center gap-2">
-          <Separator className="w-full" />
-          <p className="whitespace-nowrap text-sm text-muted-foreground">or</p>
-          <Separator className="w-full" />
-        </div>
-      </div>
-
+    <main className="grid min-h-screen w-full grid-cols-1 items-center gap-4 p-4 md:grid-cols-2 md:justify-center md:gap-10">
       <div className="flex w-full flex-col items-center justify-center">
         <Card className="w-full max-w-md">
           <CardHeader>
@@ -31,6 +12,17 @@ export default async function Page() {
           </CardHeader>
           <CardContent>
             <OpenShareForm />
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="flex w-full flex-col items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>Share something</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CreateShareForm />
           </CardContent>
         </Card>
       </div>

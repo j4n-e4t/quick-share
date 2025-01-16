@@ -27,6 +27,7 @@ export type Share = {
 };
 
 async function getCachedShare(code: string): Promise<Share> {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   const result = (
     await turso.execute({
       sql: "SELECT * FROM share WHERE code = ?",
