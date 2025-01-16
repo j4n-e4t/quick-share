@@ -52,6 +52,9 @@ export function CreateShareForm() {
   const [shareCode, setShareCode] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
+  const { mutate: wakeTurso, isPending: isTursoPending } =
+    api.share.wakeTurso.useMutation();
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -116,6 +119,9 @@ export function CreateShareForm() {
                   <Textarea
                     placeholder="Write something..."
                     className="h-24"
+                    onFocus={() => {
+                      wakeTurso();
+                    }}
                     {...field}
                   />
                 </FormControl>
@@ -153,7 +159,7 @@ export function CreateShareForm() {
           <Button
             type="submit"
             className="flex w-full items-center gap-2"
-            disabled={isPending}
+            disabled={isPending || isTursoPending}
           >
             <SendIcon className="h-4 w-4" />
             Share
