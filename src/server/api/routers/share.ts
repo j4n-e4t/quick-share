@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { turso } from "@/server/db";
+import { turso, wakeTurso } from "@/server/db";
 import { encrypt, decrypt, hashCode } from "@/lib/crypto";
 
 function parseDuration(duration: string) {
@@ -105,4 +105,9 @@ export const shareRouter = createTRPCRouter({
         code: input.code,
       };
     }),
+
+  wakeTurso: publicProcedure.mutation(async () => {
+    await wakeTurso();
+    return new Response(null, { status: 200 });
+  }),
 });

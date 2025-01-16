@@ -49,7 +49,7 @@ export function ShareViewCardSkeleton() {
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <Skeleton className="h-4 w-24" />
+        <Skeleton className="h-8 w-20" />
       </CardHeader>
       <CardContent>
         <Skeleton className="h-10 w-full" />
