@@ -1,3 +1,4 @@
+import NavBar from "@/components/nav-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/toaster";
 import "@/styles/globals.css";
@@ -33,6 +34,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <NavBar />
         <TRPCReactProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
