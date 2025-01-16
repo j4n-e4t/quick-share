@@ -10,7 +10,7 @@ export function CopyShareContentButton({ share }: { share: Share | null }) {
     <Button
       disabled={!share}
       onClick={async () => {
-        await navigator.clipboard.writeText(share?.content || "");
+        await navigator.clipboard.writeText(share?.content ?? "");
         toast({
           title: "Copied to clipboard",
           description: "Share content copied to clipboard",

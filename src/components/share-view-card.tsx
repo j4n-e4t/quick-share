@@ -55,7 +55,7 @@ export function ShareViewCardSkeleton() {
         <Skeleton className="h-10 w-full" />
       </CardContent>
       <CardFooter className="flex justify-end">
-        <CopyShareContentButton disabled share={null} />
+        <CopyShareContentButton share={null} />
       </CardFooter>
     </Card>
   );
