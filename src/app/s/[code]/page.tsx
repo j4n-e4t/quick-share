@@ -1,6 +1,9 @@
 import ShareViewCard from "@/components/share-view-card";
 import { Suspense } from "react";
 import { ShareViewCardSkeleton } from "@/components/share-view-card";
+
+export const runtime = "edge";
+
 export default async function Page(props: {
   params: Promise<{ code: string }>;
 }) {
