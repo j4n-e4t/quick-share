@@ -10,7 +10,7 @@ export default async function Page(props: {
   const params = await props.params;
 
   return (
-    <main className="flex min-h-screen items-center justify-center">
+    <main className="flex h-[calc(100vh-8rem)] items-center justify-center">
       <Suspense fallback={<ShareViewCardSkeleton />}>
         <ShareViewCard code={params.code} />
       </Suspense>

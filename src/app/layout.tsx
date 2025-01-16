@@ -34,13 +34,15 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <NavBar />
-        <TRPCReactProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </TRPCReactProvider>
+        <div className="mx-auto max-w-5xl">
+          <NavBar />
+          <TRPCReactProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </TRPCReactProvider>
+        </div>
       </body>
     </html>
   );
