@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { turso, wakeTurso } from "@/server/db";
 import { encrypt, decrypt, hashCode } from "@/lib/crypto";
+import { newShareSchema } from "@/lib/zod";
 
 function parseDuration(duration: string) {
   switch (duration) {
@@ -50,34 +51,26 @@ async function getCachedShare(code: string): Promise<Share> {
 }
 
 export const shareRouter = createTRPCRouter({
-  create: publicProcedure
-    .input(
-      z.object({
-        title: z.string(),
-        content: z.string(),
-        availableUntil: z.string(),
-      }),
-    )
-    .mutation(async ({ input }) => {
-      const code = Array.from({ length: 3 }, () =>
-        String.fromCharCode(
-          65 + ((Math.floor(Math.random() * 26) + Date.now()) % 26),
-        ),
-      ).join("");
+  create: publicProcedure.input(newShareSchema).mutation(async ({ input }) => {
+    const code = Array.from({ length: 3 }, () =>
+      String.fromCharCode(
+        65 + ((Math.floor(Math.random() * 26) + Date.now()) % 26),
+      ),
+    ).join("");
 
-      await turso.execute({
-        sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-        args: [
-          await encrypt(input.title),
-          await encrypt(input.content),
-          await hashCode(code),
-          new Date().toISOString(),
-          parseDuration(input.availableUntil),
-        ],
-      });
+    await turso.execute({
+      sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+      args: [
+        input.title ? await encrypt(input.title) : null,
+        await encrypt(input.content),
+        await hashCode(code),
+        new Date().toISOString(),
+        parseDuration(input.availableUntil),
+      ],
+    });
 
-      return code;
-    }),
+    return code;
+  }),
 
   get: publicProcedure
     .input(z.object({ code: z.string() }))

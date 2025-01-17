@@ -36,17 +36,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-
-const FormSchema = z.object({
-  title: z.string().optional(),
-  content: z.string().min(2, {
-    message: "Content is too short",
-  }),
-  availableUntil: z.string().min(1, {
-    message: "Please select a duration",
-  }),
-});
-
+import { newShareSchema } from "@/lib/zod";
 export function CreateShareForm() {
   const { mutate, isPending } = api.share.create.useMutation();
   const [shareCode, setShareCode] = useState<string | null>(null);
@@ -55,8 +45,8 @@ export function CreateShareForm() {
   const { mutate: wakeTurso, isPending: isTursoPending } =
     api.share.wakeTurso.useMutation();
 
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+  const form = useForm<z.infer<typeof newShareSchema>>({
+    resolver: zodResolver(newShareSchema),
     defaultValues: {
       title: "",
       content: "",
@@ -64,7 +54,7 @@ export function CreateShareForm() {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof newShareSchema>) {
     mutate(
       {
         title: data.title ?? "",
