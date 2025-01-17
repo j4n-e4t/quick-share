@@ -4,17 +4,19 @@ async function INTERNAL__getKey(keyString: string): Promise<CryptoKey> {
   const encoder = new TextEncoder();
   const keyData = encoder.encode(keyString);
 
+  const hashedKey = await crypto.subtle.digest("SHA-256", keyData);
+
   return crypto.subtle.importKey(
     "raw",
-    keyData.slice(0, 32), // AES-256 requires 32 bytes
+    hashedKey, // SHA-256 produces exactly 32 bytes
     "AES-GCM",
     false,
     ["encrypt", "decrypt"],
   );
 }
 
-export async function encrypt(content: string): Promise<string> {
-  const key = await INTERNAL__getKey(env.ENCRYPTION_KEY);
+export async function encrypt(content: string, salt: string): Promise<string> {
+  const key = await INTERNAL__getKey(env.ENCRYPTION_KEY + salt);
   const encoder = new TextEncoder();
   const data = encoder.encode(content);
 
@@ -29,8 +31,8 @@ export async function encrypt(content: string): Promise<string> {
   return btoa(String.fromCharCode(...combined));
 }
 
-export async function decrypt(content: string): Promise<string> {
-  const key = await INTERNAL__getKey(env.ENCRYPTION_KEY);
+export async function decrypt(content: string, salt: string): Promise<string> {
+  const key = await INTERNAL__getKey(env.ENCRYPTION_KEY + salt);
 
   const data = Uint8Array.from(atob(content), (c) => c.charCodeAt(0));
   const iv = data.slice(0, 12);

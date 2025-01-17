@@ -61,8 +61,8 @@ export const shareRouter = createTRPCRouter({
     await turso.execute({
       sql: "INSERT INTO share (title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
       args: [
-        input.title ? await encrypt(input.title) : null,
-        await encrypt(input.content),
+        input.title ? await encrypt(input.title, code) : null,
+        await encrypt(input.content, code),
         await hashCode(code),
         new Date().toISOString(),
         parseDuration(input.availableUntil),
@@ -92,8 +92,8 @@ export const shareRouter = createTRPCRouter({
 
       return {
         id: share.id,
-        title: share.title ? await decrypt(share.title) : null,
-        content: await decrypt(share.content),
+        title: share.title ? await decrypt(share.title, input.code) : null,
+        content: await decrypt(share.content, input.code),
         expires_at: share.expires_at,
         created_at: share.created_at,
         code: input.code,
