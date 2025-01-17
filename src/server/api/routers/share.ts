@@ -92,7 +92,7 @@ export const shareRouter = createTRPCRouter({
 
       return {
         id: share.id,
-        title: await decrypt(share.title!),
+        title: share.title ? await decrypt(share.title) : null,
         content: await decrypt(share.content),
         expires_at: share.expires_at,
         created_at: share.created_at,
