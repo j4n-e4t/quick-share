@@ -11,9 +11,9 @@ import { api } from "@/trpc/server";
 import { Skeleton } from "./ui/skeleton";
 import { notFound } from "next/navigation";
 
-export default async function ShareViewCard({ code }: { code: string }) {
+export default async function ShareViewCard({ id }: { id: string }) {
   try {
-    const share = await api.share.get({ code });
+    const share = await api.share.get({ id });
 
     return (
       <Card className="w-full max-w-md">
