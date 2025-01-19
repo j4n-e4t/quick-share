@@ -4,7 +4,7 @@ import { createClient } from "@libsql/client/web";
 import { Share } from "../api/routers/share";
 
 export const turso = createClient({
-  url: env.TURSO_DATABASE_URL,
+  url: env.TURSO_DATABASE_URL || "http://localhost:8080",
   authToken: env.TURSO_AUTH_TOKEN,
 });
 

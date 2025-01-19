@@ -1,0 +1,24 @@
+services:
+  db:
+    image: ghcr.io/tursodatabase/libsql-server:latest
+    ports:
+      - 8080:8080
+    environment:
+      - SQLD_NODE=primary
+    volumes:
+      - libsql:/var/lib/sqld
+  
+  quick-share:
+    image: quick-share:tiny7
+    ports:
+      - 3000:3000
+    environment:
+      - TURSO_DATABASE_URL=http://db:8080
+      - TURSO_AUTH_TOKEN=1233
+      - ENCRYPTION_KEY=c9a6c2e4e69f4fcc3f07011f022f421a9cea53fd2762e5b449f8448dffb8f96f
+      - BASIC_AUTH_USERNAME=quick
+      - BASIC_AUTH_PASSWORD=share
+    depends_on:
+      - db
+volumes:
+  libsql:
