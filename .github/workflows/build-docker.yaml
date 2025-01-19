@@ -24,4 +24,4 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/j4n-e4t/quick-share:${{ github.release.tag_name }}
+          tags: ghcr.io/j4n-e4t/quick-share:${{ github.ref_name }}
