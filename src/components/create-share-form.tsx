@@ -24,7 +24,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { CopyIcon, Loader2, SendIcon } from "lucide-react";
+import { CopyIcon, LinkIcon, Loader2, SendIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { api } from "@/trpc/react";
 
@@ -39,7 +39,10 @@ import {
 import { newShareSchema } from "@/lib/zod";
 export function CreateShareForm() {
   const { mutate, isPending } = api.share.create.useMutation();
-  const [shareCode, setShareCode] = useState<string | null>(null);
+  const [shareMetadata, setShareMetadata] = useState<{
+    id: string;
+    code: string;
+  } | null>(null);
   const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: wakeTurso, isPending: isTursoPending } =
@@ -62,8 +65,8 @@ export function CreateShareForm() {
         availableUntil: data.availableUntil,
       },
       {
-        onSuccess: (code) => {
-          setShareCode(code);
+        onSuccess: (res) => {
+          setShareMetadata(res);
           setIsOpen(true);
         },
         onError: (error) => {
@@ -166,7 +169,7 @@ export function CreateShareForm() {
               <span>Your share code is:</span>
 
               <span className="flex flex-row gap-2">
-                {shareCode?.split("").map((char, index) => (
+                {shareMetadata?.code.split("").map((char, index) => (
                   <span
                     key={index}
                     className="flex h-10 w-10 items-center justify-center rounded bg-primary px-2 py-1 font-mono text-lg text-primary-foreground"
@@ -181,20 +184,31 @@ export function CreateShareForm() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Close</AlertDialogCancel>
             <AlertDialogAction
               onClick={async () => {
-                await navigator.clipboard.writeText(
-                  `${window.location.origin}/s/${shareCode}`,
-                );
+                await navigator.clipboard.writeText(shareMetadata?.code ?? "");
                 toast({
                   title: "Copied to clipboard",
-                  description: "Share link copied to clipboard",
+                  description: "Share code copied to clipboard",
                 });
               }}
             >
               <CopyIcon className="h-4 w-4" />
-              Copy share link
+              Copy code
+            </AlertDialogAction>
+            <AlertDialogAction
+              onClick={async () => {
+                await navigator.clipboard.writeText(
+                  `${window.location.origin}/s/${shareMetadata?.id}`,
+                );
+                toast({
+                  title: "Copied to clipboard",
+                  description: "Link copied to clipboard",
+                });
+              }}
+            >
+              <LinkIcon className="h-4 w-4" />
+              Copy link
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

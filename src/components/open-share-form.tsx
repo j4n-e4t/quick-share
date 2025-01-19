@@ -19,10 +19,10 @@ import { toast } from "@/hooks/use-toast";
 const FormSchema = z.object({
   code: z
     .string()
-    .min(3, {
+    .min(4, {
       message: "Code is too short",
     })
-    .max(3, {
+    .max(4, {
       message: "Code is too long",
     }),
 });
@@ -70,8 +70,8 @@ export function OpenShareForm() {
                     className="uppercase"
                     placeholder="ABC"
                     {...field}
-                    minLength={3}
-                    maxLength={3}
+                    minLength={4}
+                    maxLength={4}
                   />
                 </FormControl>
                 <FormMessage />

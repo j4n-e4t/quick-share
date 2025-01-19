@@ -29,16 +29,18 @@ export type Share = {
 
 export const shareRouter = createTRPCRouter({
   create: publicProcedure.input(newShareSchema).mutation(async ({ input }) => {
-    const code = Array.from({ length: 3 }, () =>
+    const code = Array.from({ length: 4 }, () =>
       String.fromCharCode(
         65 + ((Math.floor(Math.random() * 26) + Date.now()) % 26),
       ),
     ).join("");
 
-    await turso.execute({
+    const id = crypto.randomUUID();
+
+    const result = await turso.execute({
       sql: "INSERT INTO share (id, title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
       args: [
-        crypto.randomUUID(),
+        id,
         input.title ? await encrypt(input.title) : null,
         await encrypt(input.content),
         await hashCode(code.toUpperCase()),
@@ -47,7 +49,10 @@ export const shareRouter = createTRPCRouter({
       ],
     });
 
-    return code;
+    return {
+      id,
+      code,
+    };
   }),
 
   get: publicProcedure
