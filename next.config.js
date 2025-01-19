@@ -4,17 +4,13 @@
  */
 import "./src/env.js";
 
-function getEnv() {
-  if (process.env.RUNTIME_ENV === "docker") {
-    return "standalone";
-  } else {
-    return "export";
-  }
-}
-
 /** @type {import("next").NextConfig} */
-const config = {
-  output: getEnv(),
+const dockerConfig = {
+  output: "standalone",
 };
 
-export default config;
+
+/** @type {import("next").NextConfig} */
+const config = {};
+
+export default process.env.RUNTIME_ENV === "docker" ? dockerConfig : config; 
