@@ -1,10 +1,9 @@
 name: Build Docker Image
 
 on:
-  push:
-    branches: [ "main" ]
   workflow_dispatch:
-
+  release:
+    types: [published]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,4 +24,4 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: ghcr.io/j4n-e4t/quick-share:latest
+          tags: ghcr.io/j4n-e4t/quick-share:${{ github.release.tag_name }}
