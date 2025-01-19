@@ -1,3 +1,4 @@
+import "server-only";
 import { env } from "@/env";
 
 async function INTERNAL__getKey(keyString: string): Promise<CryptoKey> {
