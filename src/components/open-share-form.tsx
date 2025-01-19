@@ -11,21 +11,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ArrowRightIcon } from "lucide-react";
+import { ArrowRightIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { api } from "@/trpc/react";
+import { toast } from "@/hooks/use-toast";
 
 const FormSchema = z.object({
   code: z
     .string()
-    .min(3, {
+    .min(4, {
       message: "Code is too short",
     })
-    .max(3, {
+    .max(4, {
       message: "Code is too long",
     }),
 });
 
 export function OpenShareForm() {
+  const { mutate, isPending } = api.share.getId.useMutation();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -35,7 +38,22 @@ export function OpenShareForm() {
 
   const router = useRouter();
   async function onSubmit(input: z.infer<typeof FormSchema>) {
-    router.push(`/s/${input.code.toUpperCase()}`);
+    mutate(
+      { code: input.code },
+      {
+        onSuccess: (result) => {
+          if (!result?.shareId) throw new Error("Share not found");
+          router.push(`/s/${result.shareId}`);
+        },
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+          });
+        },
+      },
+    );
   }
 
   return (
@@ -52,17 +70,22 @@ export function OpenShareForm() {
                     className="uppercase"
                     placeholder="ABC"
                     {...field}
-                    minLength={3}
-                    maxLength={3}
+                    minLength={4}
+                    maxLength={4}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="flex w-full items-center gap-2">
+          <Button
+            type="submit"
+            className="flex w-full items-center gap-2"
+            disabled={isPending}
+          >
             <ArrowRightIcon className="h-4 w-4" />
             Open share
+            {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
           </Button>
         </form>
       </Form>

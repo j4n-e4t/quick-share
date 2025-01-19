@@ -5,6 +5,12 @@
 import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
+const dockerConfig = {
+  output: "standalone",
+};
+
+
+/** @type {import("next").NextConfig} */
 const config = {};
 
-export default config;
+export default process.env.RUNTIME_ENV === "docker" ? dockerConfig : config; 
