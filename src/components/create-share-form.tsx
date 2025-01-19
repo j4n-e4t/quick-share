@@ -183,10 +183,11 @@ export function CreateShareForm() {
               </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className="gap-2">
             <AlertDialogAction
               onClick={async () => {
-                await navigator.clipboard.writeText(shareMetadata?.code ?? "");
+                console.log(shareMetadata);
+                await navigator.clipboard.writeText(shareMetadata!.code);
                 toast({
                   title: "Copied to clipboard",
                   description: "Share code copied to clipboard",

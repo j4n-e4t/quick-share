@@ -10,6 +10,9 @@ import { CopyShareContentButton } from "./copy-share-button";
 import { api } from "@/trpc/server";
 import { Skeleton } from "./ui/skeleton";
 import { notFound } from "next/navigation";
+import { Button } from "./ui/button";
+import { ArrowLeftIcon } from "lucide-react";
+import Link from "next/link";
 
 export default async function ShareViewCard({ id }: { id: string }) {
   try {
@@ -40,7 +43,12 @@ export default async function ShareViewCard({ id }: { id: string }) {
             )}
           </p>
         </CardContent>
-        <CardFooter className="flex justify-end">
+        <CardFooter className="flex justify-between">
+          <Link href="/">
+            <Button>
+              <ArrowLeftIcon className="h-4 w-4" />
+            </Button>
+          </Link>
           <CopyShareContentButton share={share} />
         </CardFooter>
       </Card>
