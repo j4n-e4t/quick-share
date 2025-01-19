@@ -47,9 +47,6 @@ export const shareRouter = createTRPCRouter({
       ],
     });
 
-    console.log(await hashCode(code.toUpperCase()));
-    console.log(code);
-
     return code;
   }),
 

@@ -9,7 +9,6 @@ export const turso = createClient({
 });
 
 export async function wakeTurso() {
-  console.log("Waking Turso");
   await turso.execute("SELECT 1");
 }
 
