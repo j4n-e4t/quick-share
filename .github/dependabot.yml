@@ -12,6 +12,9 @@ updates:
     # Check the npm registry for updates every day (weekdays)
     schedule:
       interval: "daily"
+    # Add reviewers for npm updates
+    reviewers:
+      - j4n-e4t
 
   # Enable version updates for Docker
   - package-ecosystem: "docker"
@@ -20,3 +23,6 @@ updates:
     # Check for updates once a week
     schedule:
       interval: "weekly"
+    # Add reviewers for Docker updates
+    reviewers:
+      - j4n-e4t
