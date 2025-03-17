@@ -1,5 +1,7 @@
 import { ImageResponse } from "@vercel/og";
 
+export const dynamic = "force-static";
+
 export function GET() {
   return new ImageResponse(
     (

@@ -1,6 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateShareForm } from "@/components/create-share-form";
 import { OpenShareForm } from "@/components/open-share-form";
+
+export const dynamic = "force-static";
+
 export default async function Page() {
   return (
     <main className="items- grid h-[calc(100vh-8rem)] w-full gap-4 md:gap-8">
