@@ -10,6 +10,13 @@ export const metadata: Metadata = {
   title: "Quick Share",
   description: "Share something quickly",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
+  openGraph: {
+    title: "Quick Share",
+    description: "Share something quickly",
+    type: "website",
+    siteName: "Quick Share",
+    url: "https://share.dns64.de",
+  },
 };
 
 export default function RootLayout({
