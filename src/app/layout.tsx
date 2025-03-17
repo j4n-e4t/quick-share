@@ -16,13 +16,6 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Quick Share",
     url: "https://share.dns64.de",
-    images: [{ url: "https://share.dns64.de/api/og" }],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Quick Share",
-    description: "Share something quickly",
-    images: [{ url: "https://share.dns64.de/api/og" }],
   },
 };
 
