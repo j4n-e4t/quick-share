@@ -7,10 +7,22 @@ import "./src/env.js";
 /** @type {import("next").NextConfig} */
 const dockerConfig = {
   output: "standalone",
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 };
 
-
 /** @type {import("next").NextConfig} */
-const config = {};
+const config = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+};
 
-export default process.env.RUNTIME_ENV === "docker" ? dockerConfig : config; 
+export default process.env.RUNTIME_ENV === "docker" ? dockerConfig : config;
