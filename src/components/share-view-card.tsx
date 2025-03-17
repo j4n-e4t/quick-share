@@ -49,7 +49,16 @@ export default async function ShareViewCard({ id }: { id: string }) {
               <ArrowLeftIcon className="h-4 w-4" />
             </Button>
           </Link>
-          <CopyShareContentButton share={share} />
+          <CopyShareContentButton
+            share={{
+              id,
+              code: null,
+              title: share.title,
+              content: share.content,
+              created_at: new Date(share.created_at),
+              expires_at: new Date(share.expires_at),
+            }}
+          />
         </CardFooter>
       </Card>
     );
