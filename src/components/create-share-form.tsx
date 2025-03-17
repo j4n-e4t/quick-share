@@ -1,11 +1,10 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
+import type { z } from "zod";
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -44,9 +43,6 @@ export function CreateShareForm() {
     code: string;
   } | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-
-  const { mutate: wakeTurso, isPending: isTursoPending } =
-    api.share.wakeTurso.useMutation();
 
   const form = useForm<z.infer<typeof newShareSchema>>({
     resolver: zodResolver(newShareSchema),
@@ -112,9 +108,6 @@ export function CreateShareForm() {
                   <Textarea
                     placeholder="Write something..."
                     className="h-24"
-                    onFocus={() => {
-                      wakeTurso();
-                    }}
                     {...field}
                   />
                 </FormControl>
@@ -152,7 +145,7 @@ export function CreateShareForm() {
           <Button
             type="submit"
             className="flex w-full items-center gap-2"
-            disabled={isPending || isTursoPending}
+            disabled={isPending}
           >
             <SendIcon className="h-4 w-4" />
             Share

@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
-import { getShareById, getShareIdByCode, turso, wakeTurso } from "@/server/db";
+import { redis } from "@/server/db";
 import { encrypt, decrypt, hashCode } from "@/lib/crypto";
 import { newShareSchema } from "@/lib/zod";
 
@@ -19,8 +19,8 @@ function parseDuration(duration: string) {
 }
 
 export type Share = {
-  id: number;
-  code: string;
+  id: string;
+  code: string | null;
   title: string | null;
   content: string;
   created_at: Date;
@@ -37,17 +37,16 @@ export const shareRouter = createTRPCRouter({
 
     const id = crypto.randomUUID();
 
-    const result = await turso.execute({
-      sql: "INSERT INTO share (id, title, content, code, created_at, expires_at) VALUES (?, ?, ?, ?, ?, ?)",
-      args: [
-        id,
-        input.title ? await encrypt(input.title) : null,
-        await encrypt(input.content),
-        await hashCode(code.toUpperCase()),
-        new Date().toISOString(),
-        parseDuration(input.availableUntil),
-      ],
-    });
+    await redis.set(
+      `share:${id}`,
+      JSON.stringify({
+        title: input.title ? await encrypt(input.title) : null,
+        content: await encrypt(input.content),
+        created_at: new Date().toISOString(),
+        expires_at: parseDuration(input.availableUntil),
+      }),
+    );
+    await redis.set(`codeHashToId:${await hashCode(code.toUpperCase())}`, id);
 
     return {
       id,
@@ -58,46 +57,28 @@ export const shareRouter = createTRPCRouter({
   get: publicProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
-      const share = await getShareById(input.id);
+      const share = (await redis.get(`share:${input.id}`)) as Share | null;
       if (!share) {
         throw new Error("Share not found");
       }
-      // if (new Date() > new Date(share.expires_at)) {
-      //   await turso.execute({
-      //     sql: "DELETE FROM share WHERE code = ?",
-      //     args: [await hashCode(input.code)],
-      //   });
-
-      //   throw new Error("Share has expired");
-      // }
 
       return {
-        id: share.id,
+        id: input.id,
         title: share.title ? await decrypt(share.title) : null,
         content: await decrypt(share.content),
         expires_at: share.expires_at,
         created_at: share.created_at,
-        code: "",
+        code: null,
       };
     }),
 
   getId: publicProcedure
     .input(z.object({ code: z.string() }))
     .mutation(async ({ input }) => {
-      // if (new Date() > new Date(share.expires_at)) {
-      //   await turso.execute({
-      //     sql: "DELETE FROM share WHERE code = ?",
-      //     args: [await hashCode(input.code)],
-      //   });
-
-      //   throw new Error("Share has expired");
-      // }
-
-      return { shareId: await getShareIdByCode(input.code.toUpperCase()) };
+      return {
+        shareId: (await redis.get(
+          `codeHashToId:${await hashCode(input.code.toUpperCase())}`,
+        )) as string,
+      };
     }),
-
-  wakeTurso: publicProcedure.mutation(async () => {
-    await wakeTurso();
-    return new Response(null, { status: 200 });
-  }),
 });
