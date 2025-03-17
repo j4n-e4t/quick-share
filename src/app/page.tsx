@@ -1,8 +1,29 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateShareForm } from "@/components/create-share-form";
 import { OpenShareForm } from "@/components/open-share-form";
+import { Metadata } from "next";
 
 export const dynamic = "force-static";
+
+export const metadata: Metadata = {
+  title: "Quick Share",
+  description: "Share something quickly",
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  openGraph: {
+    title: "Quick Share",
+    description: "Share something quickly",
+    type: "website",
+    siteName: "Quick Share",
+    url: "https://share.dns64.de",
+    images: [{ url: "https://share.dns64.de/api/og" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quick Share",
+    description: "Share something quickly",
+    images: [{ url: "https://share.dns64.de/api/og" }],
+  },
+};
 
 export default async function Page() {
   return (
