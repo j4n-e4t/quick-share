@@ -54,24 +54,6 @@ export const shareRouter = createTRPCRouter({
     };
   }),
 
-  get: publicProcedure
-    .input(z.object({ id: z.string() }))
-    .query(async ({ input }) => {
-      const share = (await redis.get(`share:${input.id}`)) as Share | null;
-      if (!share) {
-        throw new Error("Share not found");
-      }
-
-      return {
-        id: input.id,
-        title: share.title ? await decrypt(share.title) : null,
-        content: await decrypt(share.content),
-        expires_at: share.expires_at,
-        created_at: share.created_at,
-        code: null,
-      };
-    }),
-
   getId: publicProcedure
     .input(z.object({ code: z.string() }))
     .mutation(async ({ input }) => {
