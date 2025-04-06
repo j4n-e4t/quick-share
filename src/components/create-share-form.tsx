@@ -115,7 +115,7 @@ export function CreateShareForm() {
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             control={form.control}
             name="availableUntil"
             render={({ field }) => (
@@ -141,7 +141,7 @@ export function CreateShareForm() {
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
           <Button
             type="submit"
             className="flex w-full items-center gap-2"
@@ -165,7 +165,7 @@ export function CreateShareForm() {
                 {shareMetadata?.code.split("").map((char, index) => (
                   <span
                     key={index}
-                    className="flex h-10 w-10 items-center justify-center rounded bg-primary px-2 py-1 font-mono text-lg text-primary-foreground"
+                    className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded px-2 py-1 font-mono text-lg"
                   >
                     {char}
                   </span>
