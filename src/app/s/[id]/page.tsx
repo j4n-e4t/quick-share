@@ -10,11 +10,12 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Link, ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { decrypt } from "@/lib/crypto";
 import { Share } from "@/server/api/routers/share";
 import { redis } from "@/server/db";
 import { notFound } from "next/navigation";
+import Link from "next/link";
 
 export const runtime = "edge";
 

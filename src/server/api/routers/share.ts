@@ -1,8 +1,6 @@
-import { z } from "zod";
-
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { redis } from "@/server/db";
-import { encrypt, decrypt, hashCode } from "@/lib/crypto";
+import { encrypt, hashCode } from "@/lib/crypto";
 import { newShareSchema } from "@/lib/zod";
 
 function parseDuration(duration: string) {
@@ -53,14 +51,4 @@ export const shareRouter = createTRPCRouter({
       code,
     };
   }),
-
-  getId: publicProcedure
-    .input(z.object({ code: z.string() }))
-    .mutation(async ({ input }) => {
-      return {
-        shareId: (await redis.get(
-          `codeHashToId:${await hashCode(input.code.toUpperCase())}`,
-        )) as string,
-      };
-    }),
 });
