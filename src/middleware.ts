@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export const config = {
-  matcher: ["/", "/s/:slug"],
+  matcher: ["/"],
 };
 
 export default function middleware(req: NextRequest) {

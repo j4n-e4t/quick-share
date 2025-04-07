@@ -5,9 +5,7 @@ import { env } from "@/env";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export const config = {
-    runtime: "edge",
-};
+export const runtime = "edge";
 
 export default async function Page() {
     const jar = await cookies();
