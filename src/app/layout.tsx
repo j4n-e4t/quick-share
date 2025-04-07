@@ -40,7 +40,7 @@ export default function RootLayout({
           content="black"
         />
       </head>
-      <body>
+      <body className="bg-background">
         <div className="mx-auto max-w-5xl">
           <NavBar />
           <TRPCReactProvider>

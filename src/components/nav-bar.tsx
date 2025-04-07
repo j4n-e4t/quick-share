@@ -8,12 +8,12 @@ export default function NavBar() {
       <Link href="/">
         <span className="text-2xl font-bold">
           Quick
-          <span className="text-primary">Share</span>
+          <span className="text-purple-600">Share</span>
         </span>
       </Link>
       <div className="flex items-center gap-4">
         <Link target="_blank" href="https://github.com/j4n-e4t/quick-share">
-          <Button variant="outline" size="icon">
+          <Button size="icon">
             <Github className="h-4 w-4" />
           </Button>
         </Link>

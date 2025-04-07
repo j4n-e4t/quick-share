@@ -165,7 +165,7 @@ export function CreateShareForm() {
                 {shareMetadata?.code.split("").map((char, index) => (
                   <span
                     key={index}
-                    className="bg-primary text-primary-foreground flex h-10 w-10 items-center justify-center rounded px-2 py-1 font-mono text-lg"
+                    className="bg-main border-black border-2 text-primary-foreground flex h-10 w-10 items-center justify-center rounded-base px-2 py-1 font-mono text-lg"
                   >
                     {char}
                   </span>
