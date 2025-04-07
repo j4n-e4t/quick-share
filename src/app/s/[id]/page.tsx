@@ -14,7 +14,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { decrypt } from "@/lib/crypto";
 import { Share } from "@/server/api/routers/share";
 import { redis } from "@/server/db";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 
 export const runtime = "edge";
@@ -27,8 +27,13 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     notFound();
   }
 
-  share.content = await decrypt(share.content);
-  share.title = share.title ? await decrypt(share.title) : null;
+  try {
+    share.content = await decrypt(share.content);
+    share.title = share.title ? await decrypt(share.title) : null;
+  } catch (e) {
+    console.error(e);
+    redirect("/");
+  }
 
   return (
     <main className="flex h-[calc(100vh-8rem)] items-center justify-center">
