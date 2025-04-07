@@ -2,6 +2,8 @@ import { hashCode } from "@/lib/crypto";
 import { redis } from "@/server/db";
 import { redirect } from "next/navigation";
 
+export const runtime = "edge";
+
 export const GET = async (
   req: Request,
   { params }: { params: { code: string } },
