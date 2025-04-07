@@ -46,15 +46,16 @@ export async function ShareViewCard({ code }: { code: string }) {
             <span className="text-muted-foreground">Untitled</span>
           )}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="flex items-center justify-between text-sm">
           {share?.created_at &&
             new Date(share.created_at).toLocaleDateString("en-US", {
               dateStyle: "long",
             })}
+          {share?.ephemeral && <span className="text-red-500">Ephemeral</span>}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="bg-secondary-background rounded-md p-4 break-words whitespace-pre-wrap">
+        <p className="bg-secondary-background rounded-md border-2 border-black p-4 break-words whitespace-pre-wrap">
           {share?.content.startsWith("http") ? (
             <a
               href={share.content}
@@ -83,6 +84,7 @@ export async function ShareViewCard({ code }: { code: string }) {
               content: share?.content ?? "",
               created_at: new Date(share?.created_at ?? ""),
               expires_at: new Date(share?.created_at ?? ""),
+              ephemeral: share?.ephemeral ?? false,
             }}
           />
         )}

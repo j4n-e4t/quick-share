@@ -7,4 +7,5 @@ export const newShareSchema = z.object({
     .min(2, "Content is too short")
     .max(1000, "Content is too long"),
   availableUntil: z.string(),
+  ephemeral: z.boolean().default(false),
 });
