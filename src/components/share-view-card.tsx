@@ -12,6 +12,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import { Button } from "./ui/button";
 import { api } from "@/trpc/server";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export function ShareViewCardSkeleton() {
   return (
@@ -31,6 +32,9 @@ export function ShareViewCardSkeleton() {
 
 export async function ShareViewCard({ code }: { code: string }) {
   const share = await api.share.get({ code });
+  if (!share) {
+    redirect("/");
+  }
 
   return (
     <Card className="w-full max-w-md">
