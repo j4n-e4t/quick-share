@@ -10,13 +10,13 @@ export const GET = async (
 ) => {
   const { code } = await params;
   if (!code || code.length !== 4) {
-    return;
+    redirect("/");
   }
   const id = (await redis.get(
     `codeHashToId:${await hashCode(code.toUpperCase())}`,
   )) as string;
   if (!id) {
-    return;
+    return new Response("Invalid code", { status: 400 });
   }
   redirect(`/s/${id}`);
 };

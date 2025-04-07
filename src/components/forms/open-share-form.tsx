@@ -16,7 +16,7 @@ export default function OpenShareForm() {
         if (code.length !== 4) {
           return;
         }
-        router.push(`/api/share/${code}`);
+        router.push(`/s/${code}`);
       }}
     >
       <Input
