@@ -7,10 +7,10 @@ export default function NavBar() {
   return (
     <nav className="bg-background flex items-center justify-between p-4">
       <Link href="/">
-        <div className="flex items-center justify-start gap-2 text-2xl font-bold">
+        <div className="flex items-center justify-start text-2xl font-bold">
           Quick
           <span className="text-primary">Share</span>
-          <Badge className="text-sm" variant="outline">
+          <Badge className="ml-2 text-sm" variant="outline">
             V1
           </Badge>
         </div>
