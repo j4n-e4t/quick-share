@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowRightIcon } from "lucide-react";
 
-export const dynamic = "force-static";
 
 export default function Page() {
   async function handleOpenShare(formData: FormData) {
