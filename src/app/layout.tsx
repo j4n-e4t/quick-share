@@ -28,20 +28,9 @@ export default function RootLayout({
       className={`${GeistSans.variable}`}
       suppressHydrationWarning
     >
-      <head>
-        <meta
-          name="theme-color"
-          media="(prefers-color-scheme: light)"
-          content="white"
-        />
-        <meta
-          name="theme-color"
-          media="(prefers-color-scheme: dark)"
-          content="black"
-        />
-      </head>
-      <body className="bg-background">
-        <div className="mx-auto max-w-5xl">
+      <head></head>
+      <body className="bg-background h-screen">
+        <div className="mx-auto h-full max-w-5xl">
           <NavBar />
           <TRPCReactProvider>
             <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

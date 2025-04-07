@@ -49,7 +49,7 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-wrap break-words rounded-md bg-muted p-4">
+            <p className="bg-secondary-background rounded-md p-4 break-words whitespace-pre-wrap">
               {share.content.startsWith("http") ? (
                 <a
                   href={share.content}
