@@ -10,5 +10,5 @@ export default function middleware(req: NextRequest) {
   if (verified?.value  === "true") {
     return NextResponse.next();
   }
-  return NextResponse.redirect(new URL("/verify", req.url));
+  return NextResponse.rewrite(new URL("/verify", req.url));
 }
