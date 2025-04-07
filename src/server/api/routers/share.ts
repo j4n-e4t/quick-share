@@ -63,13 +63,17 @@ export const shareRouter = createTRPCRouter({
       if (!id) {
         return null;
       }
-      const share = JSON.parse((await redis.get(`share:${id}`)) as string);
-
+      const share = (await redis.get(`share:${id}`)) as Share | null;
       if (!share) {
         return null;
       }
-      share.content = await decrypt(share.content);
-      share.title = share.title ? await decrypt(share.title) : null;
+      try {
+        share.content = await decrypt(share.content);
+        share.title = share.title ? await decrypt(share.title) : null;
+      } catch (e) {
+        console.error("Error decrypting share", e);
+        return null;
+      }
       return share;
     }),
 });
