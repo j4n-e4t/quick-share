@@ -6,9 +6,11 @@ import { toast } from "@/hooks/use-toast";
 import type { Share } from "@/server/api/routers/share";
 
 export function CopyShareContentButton({ share }: { share: Share | null }) {
+  if (!share) {
+    return null;
+  }
   return (
     <Button
-      disabled={!share}
       onClick={async () => {
         await navigator.clipboard.writeText(share?.content ?? "");
         toast({

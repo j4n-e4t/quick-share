@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -28,14 +29,8 @@ import { Textarea } from "./ui/textarea";
 import { api } from "@/trpc/react";
 
 import { useState } from "react";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
 import { newShareSchema } from "@/lib/zod";
+import { Switch } from "./ui/switch";
 export function CreateShareForm() {
   const { mutate, isPending } = api.share.create.useMutation();
   const [shareMetadata, setShareMetadata] = useState<{
@@ -50,6 +45,7 @@ export function CreateShareForm() {
       title: "",
       content: "",
       availableUntil: "1h",
+      ephemeral: false,
     },
   });
 
@@ -59,6 +55,7 @@ export function CreateShareForm() {
         title: data.title ?? "",
         content: data.content,
         availableUntil: data.availableUntil,
+        ephemeral: data.ephemeral,
       },
       {
         onSuccess: (res) => {
@@ -84,7 +81,7 @@ export function CreateShareForm() {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <FormField
             control={form.control}
             name="title"
@@ -115,7 +112,7 @@ export function CreateShareForm() {
               </FormItem>
             )}
           />
-          <FormField
+          {/* <FormField
             control={form.control}
             name="availableUntil"
             render={({ field }) => (
@@ -139,6 +136,27 @@ export function CreateShareForm() {
                   </Select>
                 </FormControl>
                 <FormMessage />
+              </FormItem>
+            )}
+          /> */}
+          <FormField
+            control={form.control}
+            name="ephemeral"
+            render={({ field }) => (
+              <FormItem className="flex items-center justify-between">
+                <FormControl></FormControl>
+                <div className="flex-col">
+                  <FormLabel>Ephemeral</FormLabel>
+                  <FormDescription>
+                    This share will be deleted after it is viewed.
+                  </FormDescription>
+                </div>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={(value) => {
+                    field.onChange(value);
+                  }}
+                />
               </FormItem>
             )}
           />
@@ -165,7 +183,7 @@ export function CreateShareForm() {
                 {shareMetadata?.code.split("").map((char, index) => (
                   <span
                     key={index}
-                    className="flex h-10 w-10 items-center justify-center rounded bg-primary px-2 py-1 font-mono text-lg text-primary-foreground"
+                    className="bg-main text-primary-foreground rounded-base flex h-10 w-10 items-center justify-center border-2 border-black px-2 py-1 font-mono text-lg"
                   >
                     {char}
                   </span>
@@ -193,7 +211,7 @@ export function CreateShareForm() {
             <AlertDialogAction
               onClick={async () => {
                 await navigator.clipboard.writeText(
-                  `${window.location.origin}/s/${shareMetadata?.id}`,
+                  `${window.location.origin}/s/${shareMetadata?.code}`,
                 );
                 toast({
                   title: "Copied to clipboard",

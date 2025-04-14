@@ -1,32 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { env } from "./env";
 
 export const config = {
-  matcher: ["/", "/s/:slug"],
+  matcher: ["/"],
 };
 
 export default function middleware(req: NextRequest) {
-  const basicAuth = req.headers.get("authorization");
-  if (!basicAuth) {
-    return new NextResponse("Unauthorized", {
-      status: 401,
-      headers: {
-        "WWW-Authenticate": 'Basic realm="User Visible Realm"',
-      },
-    });
+  const jar = req.cookies;
+  const verified = jar.get("verified");
+  if (verified?.value  === "true") {
+    return NextResponse.next();
   }
-  const authValue = basicAuth.split(" ")[1];
-  if (authValue) {
-    const [user, pwd] = atob(authValue).split(":");
-    if (user === env.BASIC_AUTH_USERNAME && pwd === env.BASIC_AUTH_PASSWORD) {
-      return NextResponse.next();
-    }
-  }
-
-  return new NextResponse("Unauthorized", {
-    status: 401,
-    headers: {
-      "WWW-Authenticate": 'Basic realm="User Visible Realm"',
-    },
-  });
+  return NextResponse.rewrite(new URL("/verify", req.url));
 }

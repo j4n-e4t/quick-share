@@ -1,9 +1,0 @@
-.next/
-.vercel/
-node_modules/
-.env*
-.dockerignore
-Dockerfile
-next-env.d.ts
-README.md
-tsconfig.tsbuildinfo

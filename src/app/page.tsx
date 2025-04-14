@@ -1,8 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateShareForm } from "@/components/create-share-form";
-import { OpenShareForm } from "@/components/open-share-form";
-
-export const dynamic = "force-static";
+import OpenShareForm from "@/components/forms/open-share-form";
 
 export default function Page() {
   return (

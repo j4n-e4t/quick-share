@@ -1,9 +1,9 @@
-import { z } from "zod";
-
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { redis } from "@/server/db";
-import { encrypt, decrypt, hashCode } from "@/lib/crypto";
+import { decrypt, encrypt, hashCode } from "@/lib/crypto";
 import { newShareSchema } from "@/lib/zod";
+import { z } from "zod";
+import { waitUntil } from "@vercel/functions";
 
 function parseDuration(duration: string) {
   switch (duration) {
@@ -25,6 +25,7 @@ export type Share = {
   content: string;
   created_at: Date;
   expires_at: Date;
+  ephemeral: boolean | null | undefined;
 };
 
 export const shareRouter = createTRPCRouter({
@@ -44,6 +45,7 @@ export const shareRouter = createTRPCRouter({
         content: await encrypt(input.content),
         created_at: new Date().toISOString(),
         expires_at: parseDuration(input.availableUntil),
+        ephemeral: input.ephemeral,
       }),
     );
     await redis.set(`codeHashToId:${await hashCode(code.toUpperCase())}`, id);
@@ -53,32 +55,33 @@ export const shareRouter = createTRPCRouter({
       code,
     };
   }),
-
   get: publicProcedure
-    .input(z.object({ id: z.string() }))
+    .input(z.object({ code: z.string().length(4) }))
+    .input(z.object({ code: z.string().length(4) }))
     .query(async ({ input }) => {
-      const share = (await redis.get(`share:${input.id}`)) as Share | null;
-      if (!share) {
-        throw new Error("Share not found");
+      const id = (await redis.get(
+        `codeHashToId:${await hashCode(input.code.toUpperCase())}`,
+      )) as string;
+
+      if (!id) {
+        return null;
       }
-
-      return {
-        id: input.id,
-        title: share.title ? await decrypt(share.title) : null,
-        content: await decrypt(share.content),
-        expires_at: share.expires_at,
-        created_at: share.created_at,
-        code: null,
-      };
-    }),
-
-  getId: publicProcedure
-    .input(z.object({ code: z.string() }))
-    .mutation(async ({ input }) => {
-      return {
-        shareId: (await redis.get(
-          `codeHashToId:${await hashCode(input.code.toUpperCase())}`,
-        )) as string,
-      };
+      const share = (await redis.get(`share:${id}`)) as Share | null;
+      if (!share) {
+        return null;
+      }
+      try {
+        share.content = await decrypt(share.content);
+        share.title = share.title ? await decrypt(share.title) : null;
+      } catch (e) {
+        console.error("Error decrypting share", e);
+        return null;
+      }
+      if (share.ephemeral) {
+        waitUntil(redis.del(`share:${id}`));
+        waitUntil(redis.del(`codeHashToId:${await hashCode(input.code)}`));
+        console.log("Deleted share", input.code);
+      }
+      return share;
     }),
 });

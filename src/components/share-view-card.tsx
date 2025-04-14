@@ -7,65 +7,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CopyShareContentButton } from "./copy-share-button";
-import { api } from "@/trpc/server";
 import { Skeleton } from "./ui/skeleton";
-import { notFound } from "next/navigation";
-import { Button } from "./ui/button";
 import { ArrowLeftIcon } from "lucide-react";
+import { Button } from "./ui/button";
+import { api } from "@/trpc/server";
 import Link from "next/link";
-
-export default async function ShareViewCard({ id }: { id: string }) {
-  try {
-    const share = await api.share.get({ id });
-
-    return (
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>{share.title}</CardTitle>
-          <CardDescription>
-            {new Date(share.created_at).toLocaleDateString("en-US", {
-              dateStyle: "long",
-            })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="whitespace-pre-wrap break-words rounded-md bg-muted p-4">
-            {share.content.startsWith("http") ? (
-              <a
-                href={share.content}
-                target="blank"
-                className="text-primary underline"
-              >
-                {share.content}
-              </a>
-            ) : (
-              share.content
-            )}
-          </p>
-        </CardContent>
-        <CardFooter className="flex justify-between">
-          <Link href="/">
-            <Button>
-              <ArrowLeftIcon className="h-4 w-4" />
-            </Button>
-          </Link>
-          <CopyShareContentButton
-            share={{
-              id,
-              code: null,
-              title: share.title,
-              content: share.content,
-              created_at: new Date(share.created_at),
-              expires_at: new Date(share.expires_at),
-            }}
-          />
-        </CardFooter>
-      </Card>
-    );
-  } catch (error) {
-    notFound();
-  }
-}
+import { redirect } from "next/navigation";
 
 export function ShareViewCardSkeleton() {
   return (
@@ -78,6 +25,69 @@ export function ShareViewCardSkeleton() {
       </CardContent>
       <CardFooter className="flex justify-end">
         <CopyShareContentButton share={null} />
+      </CardFooter>
+    </Card>
+  );
+}
+
+export async function ShareViewCard({ code }: { code: string }) {
+  const share = await api.share.get({ code });
+  if (!share) {
+    redirect("/");
+  }
+
+  return (
+    <Card className="w-full max-w-md">
+      <CardHeader>
+        <CardTitle>
+          {share?.title ? (
+            share.title
+          ) : (
+            <span className="text-muted-foreground">Untitled</span>
+          )}
+        </CardTitle>
+        <CardDescription className="flex items-center justify-between text-sm">
+          {share?.created_at &&
+            new Date(share.created_at).toLocaleDateString("en-US", {
+              dateStyle: "long",
+            })}
+          {share?.ephemeral && <span className="text-red-500">Ephemeral</span>}
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <p className="bg-secondary-background rounded-md border-2 border-black p-4 break-words whitespace-pre-wrap">
+          {share?.content.startsWith("http") ? (
+            <a
+              href={share.content}
+              target="blank"
+              className="text-primary underline"
+            >
+              {share.content}
+            </a>
+          ) : (
+            share?.content
+          )}
+        </p>
+      </CardContent>
+      <CardFooter className="flex justify-between">
+        <Link href="/">
+          <Button>
+            <ArrowLeftIcon className="h-4 w-4" />
+          </Button>
+        </Link>
+        {share && (
+          <CopyShareContentButton
+            share={{
+              id: share?.id ?? "",
+              code: null,
+              title: share?.title ?? "",
+              content: share?.content ?? "",
+              created_at: new Date(share?.created_at ?? ""),
+              expires_at: new Date(share?.created_at ?? ""),
+              ephemeral: share?.ephemeral ?? false,
+            }}
+          />
+        )}
       </CardFooter>
     </Card>
   );
